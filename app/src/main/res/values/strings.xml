@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">CheckTaxi</string>
+    <string-array name="taxi_number">
+
+        <item>1234 ا ب ج</item>
+        <item>4567 ا ث ب</item>
+        <item>8910 ب ب ث</item>
+        <item>1112 س ب ص</item>
+        <item>1314 ط ب ي</item>
+
+    </string-array>
+</resources>
