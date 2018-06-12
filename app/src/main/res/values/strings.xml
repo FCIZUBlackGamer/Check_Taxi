@@ -9,4 +9,5 @@
         <item>1314 ط ب ي</item>
 
     </string-array>
+    <string name="title_activity_path__map">Map</string>
 </resources>

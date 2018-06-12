@@ -40,11 +40,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_path__map);
         intent = getIntent();
         lastWay_database = new LastWay_Database(this);
+        lastWay_database.InsertData("6.3 ","5.4");
         cursor = lastWay_database.ShowData();
-        if (!cursor.isNull(0)) {
+        if (!cursor.moveToPosition(0)) {
             lastWay_database.DropTable();
         }
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
