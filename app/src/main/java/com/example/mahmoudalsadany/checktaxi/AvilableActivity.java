@@ -124,6 +124,12 @@ public class AvilableActivity extends AppCompatActivity {
             }
         } else if (item.getItemId() == R.id.action_about) {
             startActivity( new Intent( AvilableActivity.this, AboutusActivity.class ) );
+        } else if (item.getItemId() == R.id.bluetooth) {
+            startActivity( new Intent( AvilableActivity.this, ListActivity.class ) );
+        }else if (item.getItemId() == R.id.last_map) {
+            Intent intent = new Intent(AvilableActivity.this, MapsActivity.class);
+            intent.putExtra("Key", "Map");
+            startActivity(intent);
         }
         return true;
     }

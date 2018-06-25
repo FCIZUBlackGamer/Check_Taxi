@@ -7,6 +7,11 @@
         android:title="Show Last Trip"
         app:showAsAction="never" />
     <item
+        android:id="@+id/bluetooth"
+        android:orderInCategory="100"
+        android:title="Scan Via Bluetooth"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_about"
         android:orderInCategory="100"
         android:title="Abut Us"

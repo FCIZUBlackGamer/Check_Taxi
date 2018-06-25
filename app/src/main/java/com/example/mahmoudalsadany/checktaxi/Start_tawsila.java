@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -29,9 +30,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkError;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -51,6 +54,7 @@ public class Start_tawsila extends AppCompatActivity {
     TextView car_id;
     Database database;
     Cursor cursor;
+    LastWay_Database lastWay_database;
 
     public Handler handler = null;
     public static Runnable runnable = null;
@@ -64,8 +68,8 @@ public class Start_tawsila extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_tawsila);
 
-
         database = new Database(this);
+        lastWay_database = new LastWay_Database(this);
         cursor = database.ShowData();
         while (cursor.moveToNext()) {
             get_email = cursor.getString(1);
@@ -93,6 +97,7 @@ public class Start_tawsila extends AppCompatActivity {
         alarm.setEnabled(false);
         start.setEnabled(true);
 
+
         if (intent.getStringExtra("VALUE") != null) {
             get_email = intent.getStringExtra("email");
             get_driver_image = intent.getStringExtra("driver_photo_url");
@@ -103,8 +108,51 @@ public class Start_tawsila extends AppCompatActivity {
             stop.setEnabled(true);
             alarm.setEnabled(true);
             start.setEnabled(false);
-            do {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+//            do {
+//                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//                builder.setTitle("Confirm")
+//                        .setMessage("This is a Confirmation Message")
+//                        .setView(editText)
+//                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                if (passwrod.equals(editText.getText().toString())) {
+//                                    state = true;
+//                                }
+//                            }
+//                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                    }
+//                }).show();
+//            } while (!state);
+
+        }
+        Picasso.with(this)
+                .load(get_driver_image)
+                .into(driver_image);
+
+        database = new Database(this);
+//        lastWay_database = new LastWay_Database(this);
+        cursor = database.ShowData();
+        while (cursor.moveToNext()) {
+            get_email = cursor.getString(1);
+        }
+        car_id.setText(get_car_id);
+
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+
+                cursor = database.ShowData();
+                while (cursor.moveToNext()) {
+                    start_ride_time = cursor.getString(4);
+//                    Toast.makeText(Start_tawsila.this, start_ride_time, Toast.LENGTH_SHORT).show();
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(Start_tawsila.this);
                 builder.setTitle("Confirm")
                         .setMessage("This is a Confirmation Message")
                         .setView(editText)
@@ -113,6 +161,52 @@ public class Start_tawsila extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 if (passwrod.equals(editText.getText().toString())) {
                                     state = true;
+//                                        final ProgressDialog progressDialog = new ProgressDialog(Start_tawsila.this);
+//                                        progressDialog.setMessage("Loading Data ...");
+//                                        progressDialog.show();
+                                    StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://check-taxi.000webhostapp.com/EndTawsila.php",
+                                            new Response.Listener<String>() {
+                                                @Override
+                                                public void onResponse(String response) {
+                                                    if (v != null) {
+                                                        ViewGroup parent = (ViewGroup) v.getParent();
+                                                        if (parent != null) {
+                                                            parent.removeAllViews();
+                                                        }
+                                                    }
+                                                    Toast.makeText(Start_tawsila.this, response, Toast.LENGTH_SHORT).show();
+//                                                        progressDialog.dismiss();
+                                                    if (response.equals("Thanks To Allah That You Are Fine <3")) {
+                                                        stopService(new Intent(Start_tawsila.this, AlertService.class));
+                                                        stop.setEnabled(false);
+                                                        alarm.setEnabled(false);
+                                                        android.os.Process.killProcess(android.os.Process.myPid());
+                                                        System.exit(1);
+                                                    }
+                                                }
+                                            }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+//                                                progressDialog.dismiss();
+                                            if (error instanceof ServerError)
+                                                Toast.makeText(Start_tawsila.this, "Server Error", Toast.LENGTH_SHORT).show();
+                                            else if (error instanceof NetworkError)
+                                                Toast.makeText(Start_tawsila.this, "Bad Network", Toast.LENGTH_SHORT).show();
+                                            else if (error instanceof TimeoutError)
+                                                Toast.makeText(Start_tawsila.this, "Timeout Error", Toast.LENGTH_SHORT).show();
+                                            else
+                                                Toast.makeText(Start_tawsila.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }) {
+                                        @Override
+                                        protected Map<String, String> getParams() throws AuthFailureError {
+                                            HashMap hashMap = new HashMap();
+                                            hashMap.put("start_time", start_ride_time);
+                                            return hashMap;
+                                        }
+                                    };
+                                    Volley.newRequestQueue(Start_tawsila.this).add(stringRequest);
+
                                 }
                             }
                         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -121,74 +215,15 @@ public class Start_tawsila extends AppCompatActivity {
 
                     }
                 }).show();
-            } while (!state);
 
-        }
-        Picasso.with(this)
-                .load(get_driver_image)
-                .into(driver_image);
+//                    ((ViewGroup)editText.getParent()).removeView(editText);
+//                        if (v != null) {
+//                            ViewGroup parent = (ViewGroup) editText.getParent();
+//                            if (parent != null) {
+//                                parent.removeAllViews();
+//                            }
+//                        }
 
-
-        while (cursor.moveToNext()) {
-            get_email = cursor.getString(1);
-        }
-        car_id.setText(get_car_id);
-
-        stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                while (cursor.moveToNext()) {
-                    start_ride_time = cursor.getString(3);
-                }
-                do {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(Start_tawsila.this);
-                    builder.setTitle("Confirm")
-                            .setMessage("This is a Confirmation Message")
-                            .setView(editText)
-                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (passwrod.equals(editText.getText().toString())) {
-                                        state = true;
-                                        final ProgressDialog progressDialog = new ProgressDialog(Start_tawsila.this);
-                                        progressDialog.setMessage("Loading Data ...");
-                                        progressDialog.show();
-                                        StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://check-taxi.000webhostapp.com/EndTawsila.php",
-                                                new Response.Listener<String>() {
-                                                    @Override
-                                                    public void onResponse(String response) {
-                                                        Toast.makeText(Start_tawsila.this, response, Toast.LENGTH_SHORT).show();
-                                                        progressDialog.dismiss();
-                                                        if (response.equals("Thanks To Allah That You Are Fine <3")) {
-                                                            stopService(new Intent(Start_tawsila.this, AlertService.class));
-                                                            stop.setEnabled(false);
-                                                            alarm.setEnabled(false);
-                                                        }
-                                                    }
-                                                }, new Response.ErrorListener() {
-                                            @Override
-                                            public void onErrorResponse(VolleyError error) {
-                                                progressDialog.dismiss();
-                                                Toast.makeText(Start_tawsila.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        }) {
-                                            @Override
-                                            protected Map<String, String> getParams() throws AuthFailureError {
-                                                HashMap hashMap = new HashMap();
-                                                hashMap.put("start_time", start_ride_time);
-                                                return hashMap;
-                                            }
-                                        };
-                                        Volley.newRequestQueue(Start_tawsila.this).add(stringRequest);
-                                    }
-                                }
-                            }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    }).show();
-                } while (!state);
 
             }
         });
@@ -206,6 +241,7 @@ public class Start_tawsila extends AppCompatActivity {
             public void onClick(View v) {
                 get_from = Field_from.getText().toString();
                 get_to = Field_to.getText().toString();
+
                 final ProgressDialog progressDialog = new ProgressDialog(Start_tawsila.this);
                 progressDialog.setMessage("Loading Data ...");
                 progressDialog.show();
@@ -226,7 +262,7 @@ public class Start_tawsila extends AppCompatActivity {
                                     runnable = new Runnable() {
                                         @Override
                                         public void run() {
-                                            handler.postDelayed(runnable, 100000 /*5*60*10000*/); // 5 Minuit
+                                            handler.postDelayed(runnable, 300000 /*5*60*10000*/); // 5 Minuit
                                             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(Start_tawsila.this);
                                             mBuilder.setSmallIcon(R.mipmap.taxi);
 
@@ -254,12 +290,12 @@ public class Start_tawsila extends AppCompatActivity {
 
                                             NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                                             Random random = new Random();
-                                            int notificationID = random.nextInt(100000);
+                                            int notificationID = random.nextInt(300000);
                                             // notificationID allows you to update the notification later on.
                                             mNotificationManager.notify(notificationID, mBuilder.build());
                                         }
                                     };
-                                    handler.postDelayed(runnable, 100000);
+                                    handler.postDelayed(runnable, 300000);
 
                                     stop.setEnabled(true);
                                     alarm.setEnabled(true);
@@ -279,11 +315,11 @@ public class Start_tawsila extends AppCompatActivity {
                     @Override
                     protected Map<String, String> getParams() throws AuthFailureError {
                         HashMap hashMap = new HashMap();
-                        hashMap.put("car_id", get_car_id+"");
-                        hashMap.put("email", get_email+"");
-                        hashMap.put("driver_id", get_driver_id+"");
-                        hashMap.put("place_from", get_from+"");
-                        hashMap.put("destination", get_to+"");
+                        hashMap.put("car_id", get_car_id + "");
+                        hashMap.put("email", get_email + "");
+                        hashMap.put("driver_id", get_driver_id + "");
+                        hashMap.put("place_from", get_from + "");
+                        hashMap.put("destination", get_to + "");
                         return hashMap;
                     }
                 };

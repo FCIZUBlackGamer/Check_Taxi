@@ -24,12 +24,12 @@ public class LastWay_Database extends SQLiteOpenHelper {
 
     private static final String LONGITUDE = "lon";
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     Context cont;
 
     // Database creation sql statement
     private static final String DATABASE_CREATE = "create table " + TABLE_NAME +
-            "( " + PID + " integer primary key , " + LATITUDE + " varchar(255) not null, " + LONGITUDE + " varchar(2) not null );";
+            "( " + PID + " integer primary key , " + LATITUDE + " varchar(255) not null, " + LONGITUDE + " varchar(255) not null );";
 
     // Database Deletion
     private static final String DATABASE_DROP = "drop table if exists " + TABLE_NAME + ";";
@@ -75,6 +75,7 @@ public class LastWay_Database extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         sqLiteDatabase.execSQL(DATABASE_DROP);
         sqLiteDatabase.execSQL(DATABASE_CREATE);
+        onCreate(sqLiteDatabase);
     }
 
     public Cursor ShowData() {
