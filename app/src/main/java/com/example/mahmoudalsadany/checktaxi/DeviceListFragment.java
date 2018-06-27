@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
@@ -97,6 +98,8 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
                 DeviceItem newDevice= new DeviceItem(device.getName(),device.getAddress(),"false");
                 deviceItemList.add(newDevice);
             }
+        }else {
+            Toast.makeText(getActivity(),"NOOOOOO",Toast.LENGTH_SHORT).show();
         }
 
         // If there are no devices, add an item that states so. It will be handled in the view.

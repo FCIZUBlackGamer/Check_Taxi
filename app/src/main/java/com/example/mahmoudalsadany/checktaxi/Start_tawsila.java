@@ -180,8 +180,11 @@ public class Start_tawsila extends AppCompatActivity {
                                                         stopService(new Intent(Start_tawsila.this, AlertService.class));
                                                         stop.setEnabled(false);
                                                         alarm.setEnabled(false);
-                                                        android.os.Process.killProcess(android.os.Process.myPid());
-                                                        System.exit(1);
+                                                        Intent intent = new Intent(Start_tawsila.this, MapsActivity.class);
+                                                        intent.putExtra("Key", "stop");
+                                                        startActivity(intent);
+//                                                        android.os.Process.killProcess(android.os.Process.myPid());
+//                                                        System.exit(1);
                                                     }
                                                 }
                                             }, new Response.ErrorListener() {
@@ -241,9 +244,11 @@ public class Start_tawsila extends AppCompatActivity {
             public void onClick(View v) {
                 get_from = Field_from.getText().toString();
                 get_to = Field_to.getText().toString();
+                lastWay_database.DropTable();
 
                 final ProgressDialog progressDialog = new ProgressDialog(Start_tawsila.this);
                 progressDialog.setMessage("Loading Data ...");
+                progressDialog.setCancelable(false);
                 progressDialog.show();
                 StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://check-taxi.000webhostapp.com/InsertNewTawsila.php",
                         new Response.Listener<String>() {

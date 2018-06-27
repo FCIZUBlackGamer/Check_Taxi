@@ -58,7 +58,7 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceItem>{
      * @param parent
      * @return
      */
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, final ViewGroup parent) {
         ViewHolder holder = null;
         View line = null;
         final DeviceItem item = (DeviceItem)getItem(position);
@@ -86,17 +86,20 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceItem>{
                 progressDialog = new ProgressDialog(context);
                 progressDialog.setMessage("Please wait ...");
                 progressDialog.setCancelable(false);
+                progressDialog.show();
+//                Toast.makeText(context,item.getDeviceName(),Toast.LENGTH_SHORT).show();
                 StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://check-taxi.000webhostapp.com/GetDriversInfo.php",
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {
                                     progressDialog.dismiss();
+//                                    Toast.makeText(context,response,Toast.LENGTH_SHORT).show();
                                     JSONObject jsonObject = new JSONObject(response);
                                     JSONArray jsonArray = jsonObject.getJSONArray("cars_data");
                                     for (int i = 0; i < jsonArray.length(); i++) {
                                         JSONObject object = jsonArray.getJSONObject(i);
-                                        intent = new Intent( context,Start_tawsila.class );
+                                        intent = new Intent( context,DriverResult.class );
                                         intent.putExtra( "driver_photo_url",object.getString("driver_photo") );
                                         intent.putExtra( "car_id",item.getDeviceName() );
                                         intent.putExtra( "driver_id",object.getString("car_driver_national_id") );

@@ -128,9 +128,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-        }else {
+        } else if (intent.getStringExtra("Key").equals("stop")) {
+            cursor.close();
+            lastWay_database.close();
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(0);
+        } else {
             cursor = lastWay_database.ShowData();
-            while (cursor.moveToNext()){
+            while (cursor.moveToNext()) {
                 LatLng latLng = new LatLng(Double.parseDouble(cursor.getString(1)), Double.parseDouble(cursor.getString(2)));
                 mMap.addMarker(new MarkerOptions().position(latLng).title("Point")
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_point)));
